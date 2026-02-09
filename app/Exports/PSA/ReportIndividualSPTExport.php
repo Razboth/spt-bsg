@@ -12,6 +12,8 @@ use App\Services\PSA\TargetAgentService;
 use App\Services\PSA\TargetUnitService;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
+ini_set('memory_limit', '4000M');
+
 class ReportIndividualSPTExport implements WithMultipleSheets
 {
     private TargetAgentService $targetAgentService;
@@ -35,48 +37,62 @@ class ReportIndividualSPTExport implements WithMultipleSheets
         $period = $this->data['period'];
 
         $targetAgentAll = $this->targetAgentService->getTargetAgents()
+            ->with('details')
             ->where('target_period_id', $period->id)
-            ->get();
+            ->get()
+            ->groupBy('agent_id');
 
         $activityAgentAll = $this->activityService->getActivities()
-            ->with(['agent', 'product'])
+            ->with(['agent', 'product', 'details'])
             ->where('date', '>=', $period->start_date)
             ->where('date', '<=', $period->end_date)
             ->get();
 
+        $activitiesByAgent = $activityAgentAll->groupBy('agent_id');
+        $activitiesByUnit = $activityAgentAll->groupBy(function ($activity) {
+            return $activity->agent->unit_id ?? 'unknown';
+        });
+
         $targetAll = $this->targetUnitService->getTargetUnits()
+            ->with('details')
             ->where('period_id', $period->id)
-            ->get();
+            ->get()
+            ->groupBy('unit_id');
 
         $scores = SptScore::get();
-        $agentBoosters = AgentBooster::get();
-        $booms = SettingBoom::get();
+        $agentBoosters = AgentBooster::get()->groupBy('agent_id');
+        $booms = SettingBoom::get()->groupBy('agent_id');
         $products = Product::get();
-        $settingProducts = SettingPositionProduct::get();
+        $settingProducts = SettingPositionProduct::with('details')->get();
 
-        $this->data['scores'] = $scores;
-        $this->data['agentBoosters'] = $agentBoosters;
-        $this->data['booms'] = $booms;
-        $this->data['products'] = $products;
-        $this->data['settingProducts'] = $settingProducts;
+        // Data global yang tidak berubah per agent
+        $globalData = [
+            'period' => $period,
+            'scores' => $scores,
+            'products' => $products,
+            'settingProducts' => $settingProducts,
+        ];
 
         foreach ($this->data['agents'] as $agent) {
             $agentId = $agent->id;
+            
             if ($agent->rank_id != '7a0094e0-c97e-475f-a75e-5eedd4bb9cdd') {
-                $targets = $targetAll->where('unit_id', $agent->unit_id);
-                $activities = $activityAgentAll->filter(function ($activity) use ($agent) {
-                    return $activity->agent && $activity->agent->unit_id == $agent->unit_id;
-                });
+                $targets = $targetAll->get($agent->unit_id) ?? collect();
+                $activities = $activitiesByUnit->get($agent->unit_id) ?? collect();
             } else {
-                $targets = $targetAgentAll->where('agent_id', $agentId);
-                $activities = $activityAgentAll->where('agent_id', $agent->id);
+                $targets = $targetAgentAll->get($agentId) ?? collect();
+                $activities = $activitiesByAgent->get($agentId) ?? collect();
             }
 
-            $this->data['targets'] = $targets;
-            $this->data['activities'] = $activities;
-            $this->data['agent'] = $agent;
+            $agentData = array_merge($globalData, [
+                'targets' => $targets,
+                'activities' => $activities,
+                'agent' => $agent,
+                'agentBoosters' => $agentBoosters->get($agentId) ?? collect(),
+                'booms' => $booms->get($agentId) ?? collect(),
+            ]);
 
-            $sheets[] = new ReportIndividualSPTSingleExport($this->data, $scores);
+            $sheets[] = new ReportIndividualSPTSingleExport($agentData);
         }
 
         return $sheets;

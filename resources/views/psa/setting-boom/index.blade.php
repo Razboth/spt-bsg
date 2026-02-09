@@ -19,7 +19,7 @@
                     <tr class="text-start text-black bg-gray-300 fw-bold fs-7 text-uppercase gs-0 border border-white">
                         <th rowspan="3" class="min-w-50px text-center ps-2">No</th>
                         <th rowspan="3" class="min-w-200px text-center">Cabang</th>
-                        <th colspan="24" class="min-w-300px w-50 text-center">Setting NPL {{ $filterYear }}</th>
+                        <th colspan="24" class="min-w-300px w-50 text-center">Setting Boom {{ $filterYear }}</th>
                         <th rowspan="3" class="min-w-100px text-center">Kontrol</th>
                     </tr>
                     <tr class="text-start text-black bg-gray-300 fw-bold fs-7 text-uppercase gs-0 border border-white">

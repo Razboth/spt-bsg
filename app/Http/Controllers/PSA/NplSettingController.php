@@ -64,7 +64,7 @@ class NplSettingController extends Controller
                 'type' => 'custom',
                 'value' => function ($row) {
                     return view('components.views.action', [
-                        'url_slot' => route('psa.setting-boom.edit', ['id' => $row->id, 'year' => date('Y')]),
+                        'url_slot' => route('psa.setting-npl.edit', ['id' => $row->id, 'year' => date('Y')]),
                         'isModalSlot' => true,
                         'icon_slot' => 'fas fa-edit',
                     ]);

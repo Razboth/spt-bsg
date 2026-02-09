@@ -309,34 +309,41 @@ class ReportController extends Controller
         $period = $this->targetPeriodService->getTargetPeriods()->latest()->first();
         $agentId = $agent->id;
 
-        $targetAgentAll = $this->targetAgentService->getTargetAgents()
-            ->where('target_period_id', $period->id)
-            ->get();
+        if ($agent->rank_id != '7a0094e0-c97e-475f-a75e-5eedd4bb9cdd') {
+            $targets = $this->targetUnitService->getTargetUnits()
+                ->with('details')
+                ->where('period_id', $period->id)
+                ->where('unit_id', $agent->unit_id)
+                ->get();
 
-        $targetAll = $this->targetUnitService->getTargetUnits()
-            ->where('period_id', $period->id)
-            ->get();
+            $activities = $this->activityService->getActivities()
+                ->with(['agent', 'product', 'details'])
+                ->where('date', '>=', $period->start_date)
+                ->where('date', '<=', $period->end_date)
+                ->whereHas('agent', function ($query) use ($agent) {
+                    $query->where('unit_id', $agent->unit_id);
+                })
+                ->get();
+        } else {
+            $targets = $this->targetAgentService->getTargetAgents()
+                ->with('details')
+                ->where('target_period_id', $period->id)
+                ->where('agent_id', $agentId)
+                ->get();
+
+            $activities = $this->activityService->getActivities()
+                ->with(['agent', 'product', 'details'])
+                ->where('date', '>=', $period->start_date)
+                ->where('date', '<=', $period->end_date)
+                ->where('agent_id', $agent->id)
+                ->get();
+        }
 
         $scores = SptScore::get();
-        $agentBoosters = AgentBooster::get();
-        $booms = SettingBoom::get();
+        $agentBoosters = AgentBooster::where('agent_id', $agentId)->get();
+        $booms = SettingBoom::where('agent_id', $agentId)->get();
         $products = Product::get();
-        $settingProducts = SettingPositionProduct::get();
-
-        $activityAgentAll = $this->activityService->getActivities()
-            ->with(['agent', 'product'])
-            ->where('date', '>=', $period->start_date)
-            ->where('date', '<=', $period->end_date)
-            ->get();
-        if ($agent->rank_id != '7a0094e0-c97e-475f-a75e-5eedd4bb9cdd') {
-            $targets = $targetAll->where('unit_id', $agent->unit_id);
-            $activities = $activityAgentAll->filter(function ($activity) use ($agent) {
-                return $activity->agent && $activity->agent->unit_id == $agent->unit_id;
-            });
-        } else {
-            $targets = $targetAgentAll->where('agent_id', $agentId);
-            $activities = $activityAgentAll->where('agent_id', $agent->id);
-        }
+        $settingProducts = SettingPositionProduct::with('details')->get();
 
         $title = 'Penerima Insentif SPT - BSG Bulan Desember 2025';
 

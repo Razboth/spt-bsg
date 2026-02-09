@@ -3,7 +3,7 @@
           action="{{ route(Str::replace('/', '.', $menu_path).'.update', [$unit->id, $year]) }}">
         @csrf
         @method('PATCH')
-        <x-form.modal-header title="Setting Boom Cabang"/>
+        <x-form.modal-header title="Setting NPL Cabang"/>
         <div class="separator mt-2 mb-5 d-flex"></div>
         <div class="card-body pt-0">
             <input type="hidden" name="unit_id" value="{{ $unit->id }}">

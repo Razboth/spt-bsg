@@ -195,6 +195,43 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
                 $currentRow++;
                 $year = date('Y');
 
+                // Precompute lookup maps to avoid heavy repeated filtering inside loops
+                $weights = [];
+                foreach (($settingProducts ?? collect()) as $sp) {
+                    $weights[$sp->product_id] = $sp->weight;
+                }
+
+                $targetsMonthly = [];
+                foreach (($this->data['targets'] ?? collect()) as $t) {
+                    foreach (($t->details ?? collect()) as $d) {
+                        $targetsMonthly[$t->product_id][(int)$d->month] = $d->amount;
+                    }
+                }
+
+                $activitySums = [];
+                foreach (($this->data['activities'] ?? collect()) as $act) {
+                    $p = $act->product_id;
+                    $m = (int)date('n', strtotime($act->created_at));
+                    $sum = 0;
+                    foreach (($act->details ?? collect()) as $det) {
+                        $sum += $det->closing_amount;
+                    }
+                    if (!isset($activitySums[$p][$m])) {
+                        $activitySums[$p][$m] = 0;
+                    }
+                    $activitySums[$p][$m] += $sum;
+                }
+
+                $agentBoostersByMonth = [];
+                foreach ($agentBoosters as $ab) {
+                    $agentBoostersByMonth[$ab->product_id][(int)$ab->month] = $ab->value;
+                }
+
+                $boomsByMonth = [];
+                foreach ($booms->where('agent_id', $agent->id) as $b) {
+                    $boomsByMonth[(int)$b->month] = $b;
+                }
+
                 $totalAchievementByProducts = [];
                 for ($i = 1; $i <= 12; $i++) {
                     $padMonth = str_pad($i, 2, '0', STR_PAD_LEFT);
@@ -218,17 +255,8 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
                     $totalAchievement = 0;
                     $totalPercentage = 0;
                     foreach ($products as $product) {
-                        $totalAmountProduct = 0;
-                        $target = $this->data['targets']->where('product_id', $product->id)->first();
-                        $selectedMonthTarget = $target?->details->where('month', $i)->first();
-                        $selectedMonthActivities = $this->data['activities']->where('product_id', $product->id)
-                            ->where('created_at', '>=', $startDate)
-                            ->where('created_at', '<=', $endDate);
-                        foreach ($selectedMonthActivities as $selectedMonthActivity) {
-                            foreach ($selectedMonthActivity->details as $selectedMonthActivityDetail) {
-                                $totalAmountProduct += $selectedMonthActivityDetail->closing_amount;
-                            }
-                        }
+                        $selectedMonthTargetAmount = $targetsMonthly[$product->id][$i] ?? 0;
+                        $totalAmountProduct = $activitySums[$product->id][$i] ?? 0;
 
                         if (!isset($totalAchievementByProducts[$product->id])) {
                             $totalAchievementByProducts[$product->id] = 0;
@@ -236,7 +264,7 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
 
                         $totalAchievementByProducts[$product->id] += $totalAmountProduct;
 
-                        $percentage = ($totalAmountProduct > 0 && $selectedMonthTarget?->amount > 0 ? $totalAmountProduct / $selectedMonthTarget->amount * 100 : 0) * $settingProduct?->weight / 100;
+                        $percentage = ($totalAmountProduct > 0 && $selectedMonthTargetAmount > 0 ? $totalAmountProduct / $selectedMonthTargetAmount * 100 : 0) * $settingProduct?->weight / 100;
 
                         $percentageText = decimalFormat($percentage) . "%";
 
@@ -246,7 +274,7 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
 
                         $sheet->setCellValue("E" . $currentRow, $product->name);
                         $sheet->setCellValue("F" . $currentRow, ($settingProduct?->weight ?? 0) . " %");
-                        $sheet->setCellValue("G" . $currentRow, setCurrency($selectedMonthTarget?->amount ?? 0));
+                        $sheet->setCellValue("G" . $currentRow, setCurrency($selectedMonthTargetAmount));
                         $sheet->setCellValue("H" . $currentRow, setCurrency($totalAmountProduct));
                         $sheet->setCellValue("I" . $currentRow, setCurrency($totalAchievementByProducts[$product->id] ?? 0));
                         $sheet->setCellValue("J" . $currentRow, $percentageText);
@@ -279,11 +307,9 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
                     $totalPercentageBooster = 0;
 
                     foreach ($boosters as $booster) {
-                        $amountBooster = $agentBoosters->where('product_id', $booster->id)
-                            ->where('month', $i)
-                            ->first()?->value ?? 0;
+                        $amountBooster = $agentBoostersByMonth[$booster->id][$i] ?? 0;
                         if ($booster->name == 'NPL' || $booster->name == 'Penurunan NPL Komersial/Konsumer') {
-                            $amountBooster = $this->data['booms']->where('agent_id', $agent->id)->where('month', $i)->first()?->value ?? 0;
+                            $amountBooster = $boomsByMonth[$i]->value ?? 0;
                         }
                         $target = $this->data['targets']->where('product_id', $booster->id)->first();
                         $selectedMonthTarget = $target?->details->where('month', $i)->first();
@@ -331,9 +357,7 @@ class ReportIndividualSPTSingleExport implements WithCustomStartCell, WithEvents
 
                     $deltaBoom = 0;
                     if ($isBoomPoint) {
-                        $boomPoint = $booms->where('agent_id', $agent->id)
-                            ->where('month', $i)
-                            ->first();
+                        $boomPoint = $boomsByMonth[$i] ?? null;
                         $sheet->setCellValue("E" . $currentRow, "NPL");
                         $sheet->setCellValue("F" . $currentRow, "Max -7%");
                         $sheet->setCellValue("G" . $currentRow, $boomPoint->target ?? 0);
