@@ -1,0 +1,158 @@
+@extends('layouts.app')
+@section('content')
+    <div class="card mb-5">
+        <div class="card-body">
+            <div id="chart" style="height: 300px;"></div>
+        </div>
+    </div>
+    <div class="card">
+        <form method="GET" id="form-filter">
+            <div class="card-header border-0 pt-6">
+                <div class="card-toolbar">
+                    <div class="d-flex flex-wrap gap-2">
+                        <x-form.select name="filterPeriod" :datas="$periods" class="w-200px" :value="$filterPeriod"
+                                       event="document.getElementById('form-filter').submit();"/>
+                        <x-form.select name="filterProduct" :datas="$products" class="w-200px" :value="$filterProduct"
+                                       event="document.getElementById('form-filter').submit();"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="card-body py-4">
+            <div class="table-responsive">
+                <table id="datatables" class="table table-rounded table-row-bordered border gy-5 gs-7">
+                    <thead>
+                    <tr class="text-start text-black bg-gray-300 fw-bold fs-7 text-uppercase gs-0 border-bottom border-gray-200">
+                        <th rowspan="2" class="min-w-200px w-100">Bulan</th>
+                        <th colspan="2" class="text-center min-w-150px">Target</th>
+                        <th colspan="2" class="text-center min-w-150px">Realisasi</th>
+                        <th colspan="2" class="text-center min-w-150px">Delta Target</th>
+                    </tr>
+                    <tr class="text-start text-black bg-gray-300 fw-bold fs-7 text-uppercase gs-0 border-bottom border-gray-200">
+                        <th class="text-center min-w-150px">Nilai</th>
+                        <th class="text-center min-w-150px">Akumulasi</th>
+                        <th class="text-center min-w-150px">Nilai</th>
+                        <th class="text-center min-w-150px">Akumulasi</th>
+                        <th class="text-center min-w-150px">Nilai</th>
+                        <th class="text-center min-w-150px">Akumulasi</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @php
+                        $accumulatedTarget = 0;
+                        $accumulatedRealization = 0;
+                        $accumulatedDelta = 0;
+                        $totalTarget = $targetAgent?->total;
+                        $realizationRemaining = 0;
+                    @endphp
+                    @for($i = 1; $i <= 12; $i++)
+                        @php
+                            $month = Str::padLeft($i, 2, 0);
+                            $target = $targetAgent?->details->where('month', $month)->first()?->amount ?? 0;
+                            $accumulatedTarget += $target;
+
+                            $realization = $arrTotalRealization[$month] ?? 0;
+                            $accumulatedRealization += $realization;
+
+                            $delta = $target - $realization;
+                            $accumulatedDelta += $delta;
+                        @endphp
+                        <tr>
+                            <td>{{ numToMonth($i) }}</td>
+                            <td class="text-end">{{ setCurrency($target) }}</td>
+                            <td class="text-end">{{ setCurrency($accumulatedTarget) }}</td>
+                            <td class="text-end">{{ setCurrency($realization) }}</td>
+                            <td class="text-end">{{ setCurrency($accumulatedRealization) }}</td>
+                            <td class="text-end">{{ setCurrency($delta) }}</td>
+                            <td class="text-end">{{ setCurrency($accumulatedDelta) }}</td>
+                        </tr>
+                    @endfor
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <x-modal-form/>
+@endsection
+@section('scripts')
+    <script>
+        var options = {
+            series: [
+                {
+                    name: "Target",
+                    data: [
+                        @for($i= 1; $i<= 12; $i++)
+                            @php
+                                $month = Str::padLeft($i, 2, 0);
+                                $target = $targetAgent?->details->where('month', $month)->first()?->amount ?? 0;
+                            @endphp
+                            '{{ $target }}',
+                        @endfor
+                    ]
+                },
+                {
+                    name: "Realisasi",
+                    data: [
+                        @for($i= 1; $i<= 12; $i++)
+                            @php
+                                $month = Str::padLeft($i, 2, 0);
+                                $realization = $arrTotalRealization[$month] ?? 0;
+                            @endphp
+                            '{{ $realization }}',
+                        @endfor
+                    ]
+                },
+            ],
+            chart: {
+                height: 350,
+                type: 'line',
+                dropShadow: {
+                    enabled: true,
+                    color: '#000',
+                    top: 18,
+                    left: 7,
+                    blur: 10,
+                    opacity: 0.2
+                },
+                toolbar: {
+                    show: false
+                }
+            },
+            title: {
+                text: 'Grafik Target Penjualan Sales Account',
+                align: 'left'
+            },
+            dataLabels: {
+                enabled: true,
+            },
+            stroke: {
+                curve: 'straight'
+            },
+            grid: {
+                padding: {
+                    top: 0,
+                },
+                row: {
+                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            yaxis: {
+                title: {
+                    text: 'Nilai'
+                },
+                min: 0,
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+        window.onLoad = function () {
+            chart.render();
+        }
+    </script>
+@endsection

@@ -1,0 +1,11 @@
+vendor
+/vendor
+.idea
+/.idea
+.env
+node_modules
+public/storage
+.dockerignore
+docker-compose.yml
+docker-compose.yaml
+storage
