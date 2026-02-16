@@ -78,7 +78,6 @@ Route::name('psa.')->group(function () {
     Route::post('/psa/agent-mappings/{id}/store-customer', [AgentMappingController::class, 'storeCustomer'])->name('agent-mappings.store-customer');
     Route::delete('/psa/agent-mappings/{id}/destroy-customer', [AgentMappingController::class, 'destroyCustomer'])->name('agent-mappings.destroy-customer');
 
-    Route::get('/psa/sales-target-account/data', [SalesTargetController::class, 'data'])->name('sales-target-account.data');
     Route::get('/psa/sales-target-account/edit-batch/{branchId}/{periodId}/{productId}', [SalesTargetController::class, 'editBatch'])->name('sales-target-account.edit-batch');
     Route::resource('/psa/sales-target-account', SalesTargetController::class);
 
@@ -86,8 +85,9 @@ Route::name('psa.')->group(function () {
     Route::get('/psa/sales-target-activity/edit-batch/{branchId}/{periodId}/{productId}', [SalesTargetController::class, 'editBatch'])->name('sales-target-activity.edit-batch');
     Route::resource('/psa/sales-target-activity', SalesTargetController::class);
 
-    Route::get('/psa/agent-sales-target-account/data', [AgentSalesTargetController::class, 'data'])->name('agent-sales-target-account.data');
     Route::get('/psa/agent-sales-target-account/edit-batch/{branchId}/{periodId}/{productId}', [AgentSalesTargetController::class, 'editBatch'])->name('agent-sales-target-account.edit-batch');
+    Route::get('/psa/agent-sales-target-account/import', [AgentSalesTargetController::class, 'import'])->name('agent-sales-target-account.import');
+    Route::patch('/psa/agent-sales-target-account/process-import', [AgentSalesTargetController::class, 'processImport'])->name('agent-sales-target-account.process-import');
     Route::resource('/psa/agent-sales-target-account', AgentSalesTargetController::class);
 
     Route::get('/psa/agent-sales-target-activity/data', [AgentSalesTargetController::class, 'data'])->name('agent-sales-target-activity.data');

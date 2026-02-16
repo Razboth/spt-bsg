@@ -3,16 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\PSA\Agent;
 use App\Services\PSA\ActivityDetailService;
-use App\Services\PSA\AgentService;
-use App\Services\PSA\ProductService;
 use App\Services\PSA\TargetAgentDetailService;
-use App\Services\PSA\TargetAgentService;
-use App\Services\PSA\TargetUnitService;
 use App\Services\PSA\TypeService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class AgentController extends Controller
 {

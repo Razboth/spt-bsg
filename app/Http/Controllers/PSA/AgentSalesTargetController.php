@@ -4,6 +4,8 @@ namespace App\Http\Controllers\PSA;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PSA\TargetAgentRequest;
+use App\Imports\PSA\BoosterImport;
+use App\Imports\PSA\SalesTargetImport;
 use App\Services\PSA\ActivityDetailService;
 use App\Services\PSA\AgentService;
 use App\Services\PSA\ProductService;
@@ -77,7 +79,10 @@ class AgentSalesTargetController extends Controller
             ->orderBy('name')
             ->pluck('name', 'id')->toArray() : $this->typeService->getTypes()->pluck('name', 'id')->toArray();
 
-        $filterProduct = $request->input('filterProduct') ?? array_key_first($products);
+        $filterProduct = $request->input('filterProduct');
+        if (!array_key_exists($filterProduct, $products)) {
+            $filterProduct = array_key_first($products);
+        }
         $period = $this->targetPeriodService->getTargetPeriodById($filterPeriod);
         $targetAgent = $this->targetAgentService->getTargetAgents()
             ->where('agent_id', $filterAgent)
@@ -163,5 +168,19 @@ class AgentSalesTargetController extends Controller
         return submitDataHelper(function () use ($request) {
             $this->targetAgentService->save($request);
         }, true);
+    }
+
+    public function import()
+    {
+        return view('components.form.import-form', [
+            'menu_path' => $this->menu_path(),
+            'title' => 'Import Target Sales',
+            'url' => asset('storage/templates/format-upload-target.xlsx'),
+        ]);
+    }
+
+    public function processImport(Request $request)
+    {
+        return importHelper(new SalesTargetImport(), $request);
     }
 }

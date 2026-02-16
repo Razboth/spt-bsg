@@ -18,6 +18,9 @@
                                        event="document.getElementById('form-filter').submit();"/>
                     </div>
                 </div>
+                <div class="card-toolbar">
+                    <x-views.add-button-modal route="{{ route(Str::replace('/', '.', $menu_path).'.import') }}" class="me-3 bg-info text-white" icon="fa-solid fa-upload" text="Import Data" />
+                </div>
             </div>
         </form>
         <div class="card-body py-4">
