@@ -8,7 +8,6 @@ use App\Http\Controllers\PSA\AgentSalesTargetController;
 use App\Http\Controllers\PSA\ApprovalController;
 use App\Http\Controllers\PSA\BoomSettingController;
 use App\Http\Controllers\PSA\ChangeCustomerController;
-use App\Http\Controllers\PSA\CoachingController;
 use App\Http\Controllers\PSA\CustomerController;
 use App\Http\Controllers\PSA\DashboardController;
 use App\Http\Controllers\PSA\NplSettingController;
@@ -28,7 +27,6 @@ use App\Http\Controllers\PSA\SptScoreController;
 use App\Http\Controllers\PSA\TargetPeriodController;
 use App\Http\Controllers\PSA\TypeController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::name('psa.')->group(function () {
     Route::get('/psa/products/data', [ProductController::class, 'data'])->name('products.data');
@@ -92,6 +90,8 @@ Route::name('psa.')->group(function () {
 
     Route::get('/psa/agent-sales-target-activity/data', [AgentSalesTargetController::class, 'data'])->name('agent-sales-target-activity.data');
     Route::get('/psa/agent-sales-target-activity/edit-batch/{branchId}/{periodId}/{productId}', [AgentSalesTargetController::class, 'editBatch'])->name('agent-sales-target-activity.edit-batch');
+    Route::get('/psa/agent-sales-target-activity/import', [AgentSalesTargetController::class, 'import'])->name('agent-sales-target-activity.import');
+    Route::patch('/psa/agent-sales-target-activity/process-import', [AgentSalesTargetController::class, 'processImport'])->name('agent-sales-target-activity.process-import');
     Route::resource('/psa/agent-sales-target-activity', AgentSalesTargetController::class);
 
     Route::get('/psa/target-period/data', [TargetPeriodController::class, 'data'])->name('target-period.data');

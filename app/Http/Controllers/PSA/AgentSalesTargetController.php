@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\PSA;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PSA\TargetAgentRequest;
-use App\Imports\PSA\BoosterImport;
-use App\Imports\PSA\SalesTargetImport;
+use App\Imports\PSA\SalesTargetAccountImport;
+use App\Imports\PSA\SalesTargetActivityImport;
 use App\Services\PSA\ActivityDetailService;
 use App\Services\PSA\AgentService;
 use App\Services\PSA\ProductService;
@@ -35,15 +34,15 @@ class AgentSalesTargetController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->statusOption = defaultStatus();
-        $this->productService = new ProductService();
-        $this->agentService = new AgentService();
-        $this->targetPeriodService = new TargetPeriodService();
-        $this->targetAgentService = new TargetAgentService();
-        $this->typeService = new TypeService();
-        $this->activityDetailService = new ActivityDetailService();
+        $this->statusOption                  = defaultStatus();
+        $this->productService                = new ProductService();
+        $this->agentService                  = new AgentService();
+        $this->targetPeriodService           = new TargetPeriodService();
+        $this->targetAgentService            = new TargetAgentService();
+        $this->typeService                   = new TypeService();
+        $this->activityDetailService         = new ActivityDetailService();
         $this->settingPositionProductService = new SettingPositionProductService();
-        $this->type = $this->menu_path() == 'psa/agent-sales-target-account' ? '1' : '2';
+        $this->type                          = $this->menu_path() == 'psa/agent-sales-target-account' ? '1' : '2';
 
         \View::share('statusOption', $this->statusOption);
         \View::share('type', $this->type);
@@ -65,12 +64,12 @@ class AgentSalesTargetController extends Controller
             ->pluck('name', 'id')
             ->toArray();
 
-        $filterAgent = $request->input('filterAgent') ?? array_key_first($agents);
+        $filterAgent  = $request->input('filterAgent') ?? array_key_first($agents);
         $filterPeriod = $request->input('filterPeriod') ?? array_key_first($periods);
 
         $products = $this->type == '1' ? $this->productService->getProduct()
             ->when($filterAgent, function ($query) use ($filterAgent) {
-                $agent = $this->agentService->getAgentById($filterAgent);
+                $agent            = $this->agentService->getAgentById($filterAgent);
                 $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
                 $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent->position_id);
                 $query->whereIn('id', array_merge($positionProducts->toArray(), $positionBoosters->toArray()));
@@ -80,17 +79,17 @@ class AgentSalesTargetController extends Controller
             ->pluck('name', 'id')->toArray() : $this->typeService->getTypes()->pluck('name', 'id')->toArray();
 
         $filterProduct = $request->input('filterProduct');
-        if (!array_key_exists($filterProduct, $products)) {
+        if (! array_key_exists($filterProduct, $products)) {
             $filterProduct = array_key_first($products);
         }
-        $period = $this->targetPeriodService->getTargetPeriodById($filterPeriod);
+        $period      = $this->targetPeriodService->getTargetPeriodById($filterPeriod);
         $targetAgent = $this->targetAgentService->getTargetAgents()
             ->where('agent_id', $filterAgent)
             ->where('target_period_id', $filterPeriod)
             ->where('product_id', $filterProduct)
             ->where('type', $this->type)
             ->first();
-            
+
         $realizations = $this->activityDetailService->getDetails()
             ->whereHas('activity', function ($query) use ($filterAgent, $filterProduct, $period) {
                 $query->where('agent_id', $filterAgent)
@@ -124,15 +123,15 @@ class AgentSalesTargetController extends Controller
 
         $totalRealization = $realizations->sum('closing_amount');
         return view('psa.agent-sales-target.index', [
-            'products' => $products,
-            'agents' => $agents,
-            'periods' => $periods,
-            'filterAgent' => $filterAgent,
-            'filterPeriod' => $filterPeriod,
-            'filterProduct' => $filterProduct,
-            'targetAgent' => $targetAgent,
+            'products'            => $products,
+            'agents'              => $agents,
+            'periods'             => $periods,
+            'filterAgent'         => $filterAgent,
+            'filterPeriod'        => $filterPeriod,
+            'filterProduct'       => $filterProduct,
+            'targetAgent'         => $targetAgent,
             'arrTotalRealization' => $arrTotalRealization,
-            'totalRealization' => $totalRealization,
+            'totalRealization'    => $totalRealization,
         ]);
     }
 
@@ -150,10 +149,10 @@ class AgentSalesTargetController extends Controller
             ->where('type', $this->type)
             ->first();
         return view('psa.agent-sales-target.form', [
-            'agent' => $this->agentService->getAgentById($unitId),
-            'period' => $this->targetPeriodService->getTargetPeriodById($periodId),
+            'agent'   => $this->agentService->getAgentById($unitId),
+            'period'  => $this->targetPeriodService->getTargetPeriodById($periodId),
             'product' => $this->type == '1' ? $this->productService->getProductById($productId) : $this->typeService->getTypeById($productId),
-            'target' => $target
+            'target'  => $target,
         ]);
     }
 
@@ -172,15 +171,19 @@ class AgentSalesTargetController extends Controller
 
     public function import()
     {
+        $isActivity = $this->type == '2';
         return view('components.form.import-form', [
             'menu_path' => $this->menu_path(),
-            'title' => 'Import Target Sales',
-            'url' => asset('storage/templates/format-upload-target.xlsx'),
+            'title'     => $isActivity ? 'Import Target Activity' : 'Import Target Account',
+            'url'       => $isActivity
+                ? asset('templates/format-upload-target-activity.xlsx')
+                : asset('templates/format-upload-target.xlsx'),
         ]);
     }
 
     public function processImport(Request $request)
     {
-        return importHelper(new SalesTargetImport(), $request);
+        $import = $this->type == '2' ? new SalesTargetActivityImport() : new SalesTargetAccountImport();
+        return importHelper($import, $request);
     }
 }
