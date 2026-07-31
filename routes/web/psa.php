@@ -28,7 +28,7 @@ use App\Http\Controllers\PSA\TargetPeriodController;
 use App\Http\Controllers\PSA\TypeController;
 use Illuminate\Support\Facades\Route;
 
-Route::name('psa.')->group(function () {
+Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::get('/psa/products/data', [ProductController::class, 'data'])->name('products.data');
     Route::get('/psa/products/{id}/data-child', [ProductController::class, 'dataChild'])->name('products.data-child');
     Route::get('/psa/products/{id}/create-child', [ProductController::class, 'createChild'])->name('products.create-child');

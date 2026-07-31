@@ -18,7 +18,7 @@ use App\Http\Controllers\Setting\UserController;
 use App\Http\Controllers\Setting\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
-Route::name('settings.')->group(function () {
+Route::middleware('menu.access')->name('settings.')->group(function () {
     Route::get('/settings/users/reset-password/{id}', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::patch('/settings/users/update-password/{id}', [UserController::class, 'updatePassword'])->name('users.update-password');
     Route::resource('/settings/users', UserController::class);

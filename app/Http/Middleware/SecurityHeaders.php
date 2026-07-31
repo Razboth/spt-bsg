@@ -47,7 +47,7 @@ class SecurityHeaders
             // Content Security Policy (112551). Permisif agar tidak merusak
             // aset existing (Bootstrap, jQuery, Moment, inline script/style),
             // namun tetap membatasi object & meng-upgrade request HTTP.
-            'Content-Security-Policy' => implode('; ', [
+            'Content-Security-Policy' => implode('; ', array_filter([
                 "default-src 'self'",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:",
                 "style-src 'self' 'unsafe-inline' https: data:",
@@ -59,8 +59,10 @@ class SecurityHeaders
                 "frame-ancestors 'self'",
                 "base-uri 'self'",
                 "form-action 'self'",
-                "upgrade-insecure-requests",
-            ]),
+                // upgrade-insecure-requests hanya di production (HTTPS).
+                // Di local/dev HTTP, directive ini justru memblokir semua asset.
+                $request->isSecure() || config('app.force_https') ? 'upgrade-insecure-requests' : null,
+            ])),
         ];
 
         // HSTS (98056) hanya dikirim pada koneksi HTTPS, sesuai rekomendasi
