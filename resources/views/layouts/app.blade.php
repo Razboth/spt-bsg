@@ -139,6 +139,64 @@
 <script src="{{ asset('assets/js/general.js') }}"></script>
 <!--end::Global Javascript Bundle-->
 <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
+<!--begin::DataTables global error handler-->
+<script>
+    (function () {
+        if (typeof $ === 'undefined' || !$.fn || !$.fn.dataTable) return;
+
+        // Matikan alert() bawaan DataTables
+        $.fn.dataTable.ext.errMode = 'none';
+
+        var dtToast = (typeof Swal !== 'undefined') ? Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 6000,
+            timerProgressBar: true,
+            customClass: { popup: 'shadow-sm' }
+        }) : null;
+
+        var lastXhr = {};
+
+        $(document).on('xhr.dt', function (e, settings, json, xhr) {
+            lastXhr[settings.sTableId || 'dt'] = xhr;
+        });
+
+        $(document).on('error.dt', function (e, settings, techNote, message) {
+            var xhr    = lastXhr[settings.sTableId || 'dt'];
+            var status = xhr ? xhr.status : 0;
+            var text   = 'Gagal memuat data tabel. Silakan muat ulang halaman.';
+
+            if (status === 401 || status === 419) {
+                text = 'Sesi Anda telah berakhir. Halaman akan dimuat ulang...';
+                setTimeout(function () { window.location.reload(); }, 3000);
+            } else if (status === 403) {
+                text = 'Anda tidak memiliki akses ke data ini.';
+            } else if (status === 404) {
+                text = 'Sumber data tidak ditemukan.';
+            } else if (status >= 500) {
+                text = 'Terjadi kesalahan pada server (' + status + '). Silakan coba lagi.';
+            } else if (status === 0 && xhr) {
+                text = 'Koneksi terputus. Periksa jaringan Anda.';
+            }
+
+            // Detail teknis tetap ada di console untuk debugging
+            console.error('[DataTables] ' + techNote + ': ' + message, xhr ? xhr.responseText : null);
+
+            // Hentikan indikator "Loading..." yang tertinggal
+            if (settings.sTableId) {
+                $('#' + settings.sTableId + '_processing').hide();
+            }
+
+            if (dtToast) {
+                dtToast.fire({ icon: 'error', title: text });
+            } else {
+                console.warn(text);
+            }
+        });
+    })();
+</script>
+<!--end::DataTables global error handler-->
 <!--begin::Custom Javascript(used for this page only)-->
 <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
 <script src="{{ asset('assets/js/custom/widgets.js') }}"></script>
