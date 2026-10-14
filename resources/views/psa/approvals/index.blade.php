@@ -49,7 +49,7 @@
 
                 @php
                     $config = [
-                        'method' => 'GET',
+                        'method' => 'POST',
                         'route' => route(str_replace('/', '.', $menu_path).'.data'),
                         'columns' => [
                             "check\ttext-center\tfalse",

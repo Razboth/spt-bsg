@@ -57,7 +57,7 @@
                     }
                     $datas[] = "average_total\ttext-end";
                 @endphp
-                <x-views.datatables :datas="$datas" :route="$route" def-order="1" def-order-status="desc"/>
+                <x-views.datatables method="POST" :datas="$datas" :route="$route" def-order="1" def-order-status="desc"/>
                 <x-views.delete-form />
             </div>
         </div>

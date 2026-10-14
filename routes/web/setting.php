@@ -76,7 +76,7 @@ Route::middleware('menu.access')->name('settings.')->group(function () {
     Route::get('/settings/menu-checklists/export/{module}', [MenuChecklistController::class, 'export'])->name('menu-checklists.export');
 
     Route::get('/settings/log-activities', [LogActivityController::class, 'index'])->name('log-activities.index');
-    Route::get('/settings/log-activities/data', [LogActivityController::class, 'data'])->name('log-activities.data');
+    Route::match(['GET', 'POST'], '/settings/log-activities/data', [LogActivityController::class, 'data'])->name('log-activities.data');
     Route::get('/settings/log-activities/{activity}/detail', [LogActivityController::class, 'detail'])->name('log-activities.detail');
     /** FRAMEWORK END */
 });

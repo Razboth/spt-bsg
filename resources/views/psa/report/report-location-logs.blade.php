@@ -48,7 +48,7 @@
                 "address",
                 );
             @endphp
-            <x-views.datatables :datas="$datas" :route="$route" def-order="1" class-default="border-end"
+            <x-views.datatables method="POST" :datas="$datas" :route="$route" def-order="1" class-default="border-end"
                                 class-first-column="ps-2"/>
         </div>
     </div>

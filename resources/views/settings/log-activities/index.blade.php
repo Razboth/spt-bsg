@@ -33,7 +33,7 @@
                     $route = route(str_replace('/', '.', $menu_path).'.data');
                     $datas = array("created_at", "name", "ip", "device", "browser", "subject_type", "event", "detail\ttext-center");
                 @endphp
-                <x-views.datatables :datas="$datas" :route="$route" def-order="0" def-order-status="desc"/>
+                <x-views.datatables method="POST" :datas="$datas" :route="$route" def-order="0" def-order-status="desc"/>
                 <x-views.delete-form/>
             </div>
         </div>

@@ -40,7 +40,7 @@
                     $route = route(str_replace('/', '.', $menu_path).'.data');
                     $data = array("agent_id", "month", "customer_id", "product_id", "value", "approved_status", "action\ttrue\tfalse");
                 @endphp
-                <x-views.datatables :datas="$data" :route="$route" def-order="1"/>
+                <x-views.datatables method="POST" :datas="$data" :route="$route" def-order="1"/>
                 <x-views.delete-form/>
             </div>
         </div>

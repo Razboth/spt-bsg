@@ -39,10 +39,10 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::get('/psa/products/{id}/detail-product', [ProductController::class, 'detailProduct'])->name('products.detail-product');
     Route::resource('/psa/products', ProductController::class);
 
-    Route::get('/psa/types/data', [TypeController::class, 'data'])->name('types.data');
+    Route::match(['GET', 'POST'], '/psa/types/data', [TypeController::class, 'data'])->name('types.data');
     Route::resource('/psa/types', TypeController::class);
 
-    Route::get('/psa/agents/data', [AgentController::class, 'data'])->name('agents.data');
+    Route::match(['GET', 'POST'], '/psa/agents/data', [AgentController::class, 'data'])->name('agents.data');
     Route::get('/psa/agents/import', [AgentController::class, 'import'])->name('agents.import');
     Route::patch('/psa/agents/process-import', [AgentController::class, 'processImport'])->name('agents.process-import');
     Route::resource('/psa/agents', AgentController::class);
@@ -52,7 +52,7 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::patch('/psa/customers/process-import', [CustomerController::class, 'processImport'])->name('customers.process-import');
     Route::resource('/psa/customers', CustomerController::class);
 
-    Route::get('/psa/activities/data', [ActivityController::class, 'data'])->name('activities.data');
+    Route::match(['GET', 'POST'], '/psa/activities/data', [ActivityController::class, 'data'])->name('activities.data');
     Route::get('/psa/activities/create-detail/{id}', [ActivityController::class, 'createDetail'])->name('activities.create-detail');
     Route::post('/psa/activities/store-detail/{id}', [ActivityController::class, 'storeDetail'])->name('activities.store-detail');
     Route::get('/psa/activities/edit-detail/{id}', [ActivityController::class, 'editDetail'])->name('activities.edit-detail');
@@ -114,7 +114,7 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::get('/psa/home', [DashboardController::class, 'home'])->name('home.index');
 
     Route::get('/psa/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
-    Route::get('/psa/approvals/data', [ApprovalController::class, 'data'])->name('approvals.data');
+    Route::match(['GET', 'POST'], '/psa/approvals/data', [ApprovalController::class, 'data'])->name('approvals.data');
     Route::get('/psa/approvals/approve/{detail}', [ApprovalController::class, 'approve'])->name('approvals.approve');
 
     Route::patch('/psa/approvals/update-approve/{detail}', [ApprovalController::class, 'updateApprove'])->name('approvals.update-approve');
@@ -143,7 +143,7 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::get('/psa/report-individual-spt/{agent}/export-single', [ReportController::class, 'exportSingleIndividualSpt'])->name('report-individual-spt.export-single');
 
     Route::get('/psa/report-location-logs', [ReportController::class, 'locationLogs'])->name('report-location-logs.index');
-    Route::get('/psa/report-location-logs/data', [ReportController::class, 'dataLocationLogs'])->name('report-location-logs.data');
+    Route::match(['GET', 'POST'], '/psa/report-location-logs/data', [ReportController::class, 'dataLocationLogs'])->name('report-location-logs.data');
     Route::get('/psa/report-location-logs/export', [ReportController::class, 'exportLocationLogs'])->name('report-location-logs.export');
 
     Route::get('/psa/maps-activity-sales', [ReportController::class, 'maps'])->name('maps-activity-sales.index');
@@ -152,7 +152,7 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::resource('/psa/setting-scores', SptScoreController::class);
 
     Route::get('/psa/setting-products/', [ProductMonthlySettingController::class, 'index'])->name('setting-products.index');
-    Route::get('/psa/setting-products/data', [ProductMonthlySettingController::class, 'data'])->name('setting-products.data');
+    Route::match(['GET', 'POST'], '/psa/setting-products/data', [ProductMonthlySettingController::class, 'data'])->name('setting-products.data');
     Route::get('/psa/setting-products/{id}/{year}/edit', [ProductMonthlySettingController::class, 'edit'])->name('setting-products.edit');
     Route::patch('/psa/setting-products/{id}/{year}/update', [ProductMonthlySettingController::class, 'update'])->name('setting-products.update');
 
@@ -172,14 +172,14 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::delete('/psa/setting-position-boosters/{id}/destroy-product', [SettingPositionProductController::class, 'destroyProduct'])->name('setting-position-boosters.destroy-product');
     Route::resource('/psa/setting-position-boosters', SettingPositionProductController::class);
 
-    Route::get('/psa/agent-boosters/data', [AgentBoosterController::class, 'data'])->name('agent-boosters.data');
+    Route::match(['GET', 'POST'], '/psa/agent-boosters/data', [AgentBoosterController::class, 'data'])->name('agent-boosters.data');
     Route::get('/psa/agent-boosters/import', [AgentBoosterController::class, 'import'])->name('agent-boosters.import');
     Route::patch('/psa/agent-boosters/process-import', [AgentBoosterController::class, 'processImport'])->name('agent-boosters.process-import');
     Route::get('/psa/agent-boosters/approve/{booster}', [AgentBoosterController::class, 'approve'])->name('agent-boosters.approve');
     Route::patch('/psa/agent-boosters/update-approve/{id}', [AgentBoosterController::class, 'updateApprove'])->name('agent-boosters.update-approve');
     Route::resource('/psa/agent-boosters', AgentBoosterController::class);
 
-    Route::get('/psa/change-customers/data', [ChangeCustomerController::class, 'data'])->name('change-customers.data');
+    Route::match(['GET', 'POST'], '/psa/change-customers/data', [ChangeCustomerController::class, 'data'])->name('change-customers.data');
     Route::get('/psa/change-customers/sales/{id}', [ChangeCustomerController::class, 'sales'])->name('change-customers.sales');
     Route::get('/psa/change-customers/customers/{id}', [ChangeCustomerController::class, 'customers'])->name('change-customers.customers');
     Route::get('/psa/change-customers/approve/{id}', [ChangeCustomerController::class, 'approve'])->name('change-customers.approve');
@@ -187,16 +187,16 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::resource('/psa/change-customers', ChangeCustomerController::class);
 
     Route::get('/psa/setting-boom/', [BoomSettingController::class, 'index'])->name('setting-boom.index');
-    Route::get('/psa/setting-boom/data', [BoomSettingController::class, 'data'])->name('setting-boom.data');
+    Route::match(['GET', 'POST'], '/psa/setting-boom/data', [BoomSettingController::class, 'data'])->name('setting-boom.data');
     Route::get('/psa/setting-boom/{id}/{year}/edit', [BoomSettingController::class, 'edit'])->name('setting-boom.edit');
     Route::patch('/psa/setting-boom/{id}/{year}/update', [BoomSettingController::class, 'update'])->name('setting-boom.update');
 
     Route::get('/psa/setting-npl/', [NplSettingController::class, 'index'])->name('setting-npl.index');
-    Route::get('/psa/setting-npl/data', [NplSettingController::class, 'data'])->name('setting-npl.data');
+    Route::match(['GET', 'POST'], '/psa/setting-npl/data', [NplSettingController::class, 'data'])->name('setting-npl.data');
     Route::get('/psa/setting-npl/{id}/{year}/edit', [NplSettingController::class, 'edit'])->name('setting-npl.edit');
     Route::patch('/psa/setting-npl/{id}/{year}/update', [NplSettingController::class, 'update'])->name('setting-npl.update');
 
-    Route::get('/psa/sales-ratio/data/{settingId}', [SalesRatioController::class, 'data'])->name('sales-ratio.data');
+    Route::match(['GET', 'POST'], '/psa/sales-ratio/data/{settingId}', [SalesRatioController::class, 'data'])->name('sales-ratio.data');
     Route::get('/psa/sales-ratio/sales/{id}', [SalesRatioController::class, 'sales'])->name('sales-ratio.sales');
     Route::get('/psa/sales-ratio/customers/{id}', [SalesRatioController::class, 'customers'])->name('sales-ratio.customers');
     Route::get('/psa/sales-ratio/products/{id}', [SalesRatioController::class, 'products'])->name('sales-ratio.products');
@@ -209,11 +209,11 @@ Route::middleware('menu.access')->name('psa.')->group(function () {
     Route::patch('/psa/sales-ratio/process-import', [SalesRatioController::class, 'processImport'])->name('sales-ratio.process-import');
 
     Route::get('/psa/sales-monthly-ratio', [SalesMonthlyRationController::class, 'index'])->name('sales-monthly-ratio.index');
-    Route::get('/psa/sales-monthly-ratio/data/{settingId}', [SalesMonthlyRationController::class, 'data'])->name('sales-monthly-ratio.data');
+    Route::match(['GET', 'POST'], '/psa/sales-monthly-ratio/data/{settingId}', [SalesMonthlyRationController::class, 'data'])->name('sales-monthly-ratio.data');
 
     Route::get('/psa/sales-average-ratio', [SalesAverageRatioController::class, 'index'])->name('sales-average-ratio.index');
-    Route::get('/psa/sales-average-ratio/data/{settingId}', [SalesAverageRatioController::class, 'data'])->name('sales-average-ratio.data');
+    Route::match(['GET', 'POST'], '/psa/sales-average-ratio/data/{settingId}', [SalesAverageRatioController::class, 'data'])->name('sales-average-ratio.data');
 
     Route::get('/psa/sales-daily-average', [SalesDailyAverageController::class, 'index'])->name('sales-daily-average.index');
-    Route::get('/psa/sales-daily-average/data/{settingId}', [SalesDailyAverageController::class, 'data'])->name('sales-daily-average.data');
+    Route::match(['GET', 'POST'], '/psa/sales-daily-average/data/{settingId}', [SalesDailyAverageController::class, 'data'])->name('sales-daily-average.data');
 });

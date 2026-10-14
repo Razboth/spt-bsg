@@ -57,7 +57,7 @@
                         $datas = array("date","number", "product_id", "customer_id", "recent_activity", "updated_at", "action\ttrue\tfalse");
                     }
                 @endphp
-                <x-views.datatables :datas="$datas" :route="$route" def-order="1" def-order-status="desc"/>
+                <x-views.datatables :datas="$datas" :route="$route" def-order="1" def-order-status="desc" method="POST"/>
                 <x-views.delete-form/>
             </div>
         </div>
