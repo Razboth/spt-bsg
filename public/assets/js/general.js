@@ -104,11 +104,14 @@ $(document).on("click", ".btn-modal", function (e) {
     showGlobalModal(url, width, filter);
 });
 
-$("#form-edit").on("click", "#btnSubmitForm", function () {
+$(document).on("click", "#btnSubmitForm", function (e) {
+    e.preventDefault();
     let btnSubmit = this;
+    let form = $(this).closest("form");
+    if (!form.length) return;
     btnSubmit.setAttribute("data-kt-indicator", "on");
     btnSubmit.disabled = true;
-    $("#form-edit").submit();
+    form.submit();
 });
 
 $("#modal-form").on("click", "#btnSubmit", function () {
@@ -116,7 +119,7 @@ $("#modal-form").on("click", "#btnSubmit", function () {
     btnSubmit.setAttribute("data-kt-indicator", "on");
     btnSubmit.disabled = true;
     var form = $(this).closest("form");
-    var formId = new FormData(document.getElementById("form-edit"));
+    var formId = new FormData(form[0]);
     var action = form.attr("action");
     $.ajaxSetup({
         headers: {
@@ -175,6 +178,7 @@ $("#modal-form").on("click", "#btnSubmit", function () {
 });
 
 $("#modal-form").on("hidden.bs.modal", function () {
+    $(this).find(".modal-body").empty();
     $("select").select2({
         dropdownParent: $("#form-filter"),
     });
