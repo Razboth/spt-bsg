@@ -27,7 +27,14 @@
                         paginate: {{ $paginate ? 'true' : 'false' }},
                         ajax: {
                             url: '{{ $route }}',
-                            method: '{{ $method }}'
+                            method: '{{ $method }}',
+                            // pangkas metadata kolom DataTables (searchable/orderable/search) agar payload kecil
+                            data: function (d) {
+                                d.columns = d.columns.map(function (c) {
+                                    return (c.name && c.name !== c.data) ? {data: c.data, name: c.name} : {data: c.data};
+                                });
+                                return d;
+                            }
                         },
                         order: [[ <?= $defOrder ?>, '{!! $defOrderStatus !!}' ]],
                         columnDefs: [

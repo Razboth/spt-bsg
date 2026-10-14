@@ -288,8 +288,13 @@ class ActivityController extends Controller
         $customerBalance = $request->customer_balance;
         $accountNumber = $request->account_number;
         $cif = $request->cif;
-        return submitDataHelper(function () use ($request, $id, $activity, $closingAmount, $customerBalance, $accountNumber, $cif) {
-            $types = Type::get();
+        $selectedTypes = (array)$request->input('types', []);
+        return submitDataHelper(function () use ($request, $id, $activity, $closingAmount, $customerBalance, $accountNumber, $cif, $selectedTypes) {
+            if (empty($selectedTypes)) {
+                throw new Exception('Gagal, pilih minimal satu aktifitas yang akan di edit');
+            }
+
+            $types = Type::whereIn('id', $selectedTypes)->get();
             foreach ($types as $type){
                 //delete existing detail with type
                 $activity->details()->where('type_id', $type->id)->delete();

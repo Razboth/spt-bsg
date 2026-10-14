@@ -101,7 +101,14 @@
                         paginate: {{ $config['paginate'] ? 'true' : 'false' }},
                         ajax: {
                             url: '{{ $config['route'] }}',
-                            method: '{{ $config['method'] }}'
+                            method: '{{ $config['method'] }}',
+                            // pangkas metadata kolom DataTables (searchable/orderable/search) agar payload kecil
+                            data: function (d) {
+                                d.columns = d.columns.map(function (c) {
+                                    return (c.name && c.name !== c.data) ? {data: c.data, name: c.name} : {data: c.data};
+                                });
+                                return d;
+                            }
                         },
                         order: [[5, 'asc'], [6, 'asc'], [1, 'asc']],
                         columnDefs: [{targets: "_all", className: '{{ $config['classDefault'] }}'}],

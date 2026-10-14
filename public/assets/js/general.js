@@ -119,8 +119,29 @@ $("#modal-form").on("click", "#btnSubmit", function () {
     btnSubmit.setAttribute("data-kt-indicator", "on");
     btnSubmit.disabled = true;
     var form = $(this).closest("form");
-    var formId = new FormData(form[0]);
     var action = form.attr("action");
+
+    // Kirim multipart hanya bila benar-benar ada file yang dipilih.
+    // Tanpa file, multipart cuma menambah overhead boundary + header per field.
+    var hasFile = form
+        .find('input[type="file"]')
+        .toArray()
+        .some(function (input) {
+            return input.files && input.files.length > 0;
+        });
+
+    var payload = hasFile
+        ? {
+              data: new FormData(form[0]),
+              processData: false,
+              contentType: false,
+          }
+        : {
+              data: form.serialize(),
+              processData: true,
+              contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+          };
+
     $.ajaxSetup({
         headers: {
             "X-CSRF-TOKEN": $('meta[name="_token"]').attr("content"),
@@ -129,10 +150,10 @@ $("#modal-form").on("click", "#btnSubmit", function () {
     $.ajax({
         url: action,
         method: "post",
-        processData: false,
-        contentType: false,
+        processData: payload.processData,
+        contentType: payload.contentType,
         cache: false,
-        data: formId,
+        data: payload.data,
         success: function (result) {
             if (result.errors) {
                 $.each(result.errors, function (key, value) {

@@ -18,9 +18,9 @@
                             <input class="form-check-input" type="checkbox"
                                    checked
                            value="{{ $key }}"
-                           name="types[{{ $key }}]"
-                           id="types[{{ $key }}]" />
-                            <label class="form-check-label text-dark" for="types[{{ $key }}]">{{ $value }}</label>
+                           name="types[]"
+                           id="type_{{ $key }}" />
+                            <label class="form-check-label text-dark" for="type_{{ $key }}">{{ $value }}</label>
                         </div>
                     @endforeach
                 </div>
