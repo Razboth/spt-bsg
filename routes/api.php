@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function (){
+Route::middleware(['auth:sanctum', 'employee.data'])->group(function (){
     Route::get('/activities', [ActivityController::class, 'get']);
     Route::get('/activity/{id}', [ActivityController::class, 'getActivity']);
     Route::post('/activity/store', [ActivityController::class, 'store']);

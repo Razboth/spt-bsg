@@ -62,7 +62,7 @@ class SalesTargetController extends Controller
         if(Auth::user()->role->name != 'Manager' && Auth::user()->role->name != 'Pemimpin Cabang') {
             $filterUnit = $request->input('filterUnit') ?? array_key_first($units);
         }else{
-            $filterUnit = Auth::user()->model->unit_id;
+            $filterUnit = Auth::user()->employee()?->unit_id;
         }
         $filterPeriod = $request->input('filterPeriod') ?? array_key_first($periods);
         $filterProduct = $request->input('filterProduct') ?? array_key_first($products);

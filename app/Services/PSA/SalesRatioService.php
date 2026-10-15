@@ -61,10 +61,10 @@ class SalesRatioService extends Controller
                 $query->where('leader_id', Auth::user()->model_id);
             })
             ->when(Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', Auth::user()->model->unit_id);
+                $query->where('unit_id', Auth::user()->employee()?->unit_id);
             })
             ->when(Auth::user()->role->name == 'Sales', function ($query) {
-                $query->where('agents.id', Auth::user()->model->id);
+                $query->where('agents.id', Auth::user()->employee()?->id);
             });
 
         // Filter function
@@ -158,10 +158,10 @@ class SalesRatioService extends Controller
                 $query->where('leader_id', Auth::user()->model_id);
             })
             ->when(Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', Auth::user()->model->unit_id);
+                $query->where('unit_id', Auth::user()->employee()?->unit_id);
             })
             ->when(Auth::user()->role->name == 'Sales', function ($query) {
-                $query->where('agents.id', Auth::user()->model->id);
+                $query->where('agents.id', Auth::user()->employee()?->id);
             });
 
         // Filter function
@@ -278,10 +278,10 @@ class SalesRatioService extends Controller
                 $query->where('leader_id', Auth::user()->model_id);
             })
             ->when(Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', Auth::user()->model->unit_id);
+                $query->where('unit_id', Auth::user()->employee()?->unit_id);
             })
             ->when(Auth::user()->role->name == 'Sales', function ($query) {
-                $query->where('agents.id', Auth::user()->model->id);
+                $query->where('agents.id', Auth::user()->employee()?->id);
             });
 
         // Filter function
@@ -441,10 +441,10 @@ class SalesRatioService extends Controller
                 $query->where('leader_id', Auth::user()->model_id);
             })
             ->when(Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', Auth::user()->model->unit_id);
+                $query->where('unit_id', Auth::user()->employee()?->unit_id);
             })
             ->when(Auth::user()->role->name == 'Sales', function ($query) {
-                $query->where('agents.id', Auth::user()->model->id);
+                $query->where('agents.id', Auth::user()->employee()?->id);
             });
 
         // Filter function

@@ -51,7 +51,7 @@ class PerformanceController extends Controller
     {
         $units = $this->appMasterDataService->getMasters('PMUK')
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
-                $query->where('id', \Auth::user()->model->unit_id);
+                $query->where('id', \Auth::user()->employee()?->unit_id);
             })
             ->pluck('name', 'id')->toArray();
         $periods = $this->targetPeriodService->getTargetPeriods()->get();
@@ -88,7 +88,7 @@ class PerformanceController extends Controller
         }
 
         if (\Auth::user()->role->name == 'Manager' || \Auth::user()->role->name == 'Pemimpin Cabang') {
-            $filterBranch = \Auth::user()->model->unit_id;
+            $filterBranch = \Auth::user()->employee()?->unit_id;
         }
 
         $arrPointTypes = $this->typeService->getTypes()->pluck('point', 'id')->toArray();
@@ -117,7 +117,7 @@ class PerformanceController extends Controller
         $positionProducts = [];
         if ($filterAgent) {
             $agent               = $this->agentService->getAgentById($filterAgent);
-            $positionProducts    = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts    = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
             $targetAgentAccounts = $this->targetAgentService->getTargetAgents()
                 ->where('target_period_id', $filterYear)
                 ->when($filterAgent, function ($query, $filterAgent) {
@@ -164,7 +164,7 @@ class PerformanceController extends Controller
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
                 $query->whereHas('agent', function ($query) {
 //                    $query->where('leader_id', \Auth::user()->model_id);
-                                    $query->where('unit_id', \Auth::user()->model->unit_id);
+                                    $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
                 });
             })
@@ -261,7 +261,7 @@ class PerformanceController extends Controller
         $agents = $this->agentService->getAgent(isSalesOnly: true)
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             })
             ->when($filterBranch, function ($query, $filterBranch) {
@@ -273,7 +273,7 @@ class PerformanceController extends Controller
             ->where('rank_id', $this->appParameterService->getParameterByCode('PS')->value)
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             })
             ->get();

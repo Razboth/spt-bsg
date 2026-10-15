@@ -7,7 +7,7 @@ use App\Traits\Blameable;
 use App\Traits\UUIDAsPrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Jenssegers\Agent\Agent;
+use Jenssegers\Agent\Agent as UserAgent;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -40,7 +40,7 @@ class Customer extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $agent = new Agent();
+        $agent = new UserAgent();
 
         $activity->properties = $activity->properties->merge([
             'ip' => request()->ip(),

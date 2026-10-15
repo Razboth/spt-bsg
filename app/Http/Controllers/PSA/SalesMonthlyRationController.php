@@ -44,7 +44,7 @@ class SalesMonthlyRationController extends Controller
         if(Auth::user()->role->name != 'Manager' && Auth::user()->role->name != 'Sales') {
             $setting = $this->settingPositionProductService->getSettingPositionProductById($settingId);
         }else{
-            $position = Auth::user()->model->position_id;
+            $position = Auth::user()->employee()?->position_id;
             $setting = $this->settingPositionProductService->getSettingProductByPosition($position);
             $settingId = $setting->id;
         }

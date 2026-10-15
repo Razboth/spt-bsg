@@ -59,7 +59,7 @@ class AgentSalesTargetController extends Controller
 
         $agents = $this->agentService->getAgent(isSalesOnly: true)
             ->when(Auth::user()->role->name == 'Manager' || Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', \Auth::user()->model->unit_id);
+                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
             })
             ->pluck('name', 'id')
             ->toArray();
@@ -70,8 +70,8 @@ class AgentSalesTargetController extends Controller
         $products = $this->type == '1' ? $this->productService->getProduct()
             ->when($filterAgent, function ($query) use ($filterAgent) {
                 $agent            = $this->agentService->getAgentById($filterAgent);
-                $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
-                $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent->position_id);
+                $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
+                $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent?->position_id);
                 $query->whereIn('id', array_merge($positionProducts->toArray(), $positionBoosters->toArray()));
             })
             ->orderBy('type', 'desc')

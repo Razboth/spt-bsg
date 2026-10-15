@@ -67,7 +67,7 @@ class ActivityService extends Controller
 
             if (Auth::user()->role->name == 'Pemimpin Cabang') {
                 $query->whereHas('agent', function (Builder $query) {
-                    $query->where('unit_id', \Auth::user()->model->unit_id);
+                    $query->where('unit_id', \Auth::user()->employee()?->unit_id);
                 });
             }
 
@@ -219,7 +219,7 @@ class ActivityService extends Controller
 
             if (\Auth::user()->role->name == 'Pemimpin Cabang') {
                 $query->whereHas('agent', function (Builder $query) {
-                    $query->where('unit_id', \Auth::user()->model->unit_id);
+                    $query->where('unit_id', \Auth::user()->employee()?->unit_id);
                 });
             }
 

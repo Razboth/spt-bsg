@@ -77,6 +77,11 @@ class User extends Authenticatable
         'last_login' => 'datetime',
     ];
 
+    /**
+     * Role yang datanya dibatasi (scoped) berdasarkan data pegawai (agents).
+     */
+    const EMPLOYEE_SCOPED_ROLES = ['Sales', 'Atasan', 'Mentor', 'Manager', 'Pemimpin Cabang'];
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
@@ -85,5 +90,48 @@ class User extends Authenticatable
     public function model(): BelongsTo
     {
         return $this->belongsTo(Agent::class, 'model_id');
+    }
+
+    /**
+     * Apakah user punya data pegawai (agents) yang valid.
+     */
+    public function hasEmployee(): bool
+    {
+        return !empty($this->model_id) && $this->employee() !== null;
+    }
+
+    /**
+     * Data pegawai milik user, null kalau belum dimapping / record-nya hilang.
+     */
+    public function employee(): ?Agent
+    {
+        if (empty($this->model_id)) {
+            return null;
+        }
+
+        return $this->relationLoaded('model') ? $this->getRelation('model') : $this->getRelationValue('model');
+    }
+
+    public function employeeId(): ?string
+    {
+        return $this->hasEmployee() ? $this->model_id : null;
+    }
+
+    public function employeeUnitId(): ?string
+    {
+        return $this->employee()?->unit_id;
+    }
+
+    public function employeePositionId(): ?string
+    {
+        return $this->employee()?->position_id;
+    }
+
+    /**
+     * Role user butuh data pegawai untuk memfilter data menu.
+     */
+    public function needsEmployee(): bool
+    {
+        return $this->role_id == 9 || in_array(optional($this->role)->name, self::EMPLOYEE_SCOPED_ROLES, true);
     }
 }

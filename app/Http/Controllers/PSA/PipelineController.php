@@ -45,8 +45,8 @@ class PipelineController extends Controller
     {
         $agentId = \Auth::user()->model_id;
         $periods = $this->targetPeriodService->getTargetPeriodForArray();
-        $positionProducts = $this->settingPositionProductService->getProductsByPosition(\Auth::user()->model->position_id);
-        $positionBoosters = $this->settingPositionProductService->getBoostersByPosition(\Auth::user()->model->position_id);
+        $positionProducts = $this->settingPositionProductService->getProductsByPosition(\Auth::user()->employee()?->position_id);
+        $positionBoosters = $this->settingPositionProductService->getBoostersByPosition(\Auth::user()->employee()?->position_id);
 
         $products = $this->productService->getProduct()
             ->whereIn('id', array_merge($positionProducts->toArray(), $positionBoosters->toArray()))

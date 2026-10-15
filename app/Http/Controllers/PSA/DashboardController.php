@@ -63,7 +63,7 @@ class DashboardController extends Controller
         }
 
         if (\Auth::user()->role->name == 'Manager' || \Auth::user()->role->name == 'Pemimpin Cabang') {
-            $filterBranch = \Auth::user()->model->unit_id;
+            $filterBranch = \Auth::user()->employee()?->unit_id;
         }
 
         $agents = $this->agentService->getAgent(isSalesOnly: true)
@@ -72,11 +72,11 @@ class DashboardController extends Controller
             })
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             })
             ->when(\Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', \Auth::user()->model->unit_id);
+                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
             })
             ->pluck('name', 'id')
             ->toArray();
@@ -98,12 +98,12 @@ class DashboardController extends Controller
         $positionProducts = [];
         if ($filterAgent) {
             $agent            = $this->agentService->getAgentById($filterAgent);
-            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
         }
 
         if (\Auth::user()->role->name == 'Manager') {
             $agent            = $this->agentService->getAgentById(\Auth::user()->model_id);
-            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
         }
 
         $filterMonth = $request->input('filterMonth') ?? date('m');
@@ -137,13 +137,13 @@ class DashboardController extends Controller
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
                 $query->whereHas('agent', function ($query) {
 //                    $query->where('leader_id', \Auth::user()->model_id);
-                                    $query->where('unit_id', \Auth::user()->model->unit_id);
+                                    $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
                 });
             })
             ->when(\Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
                 $query->whereHas('agent', function ($query) {
-                    $query->where('unit_id', \Auth::user()->model->unit_id);
+                    $query->where('unit_id', \Auth::user()->employee()?->unit_id);
                 });
             })
             ->when($filterBranch, function ($query, $filterBranch) {
@@ -184,7 +184,7 @@ class DashboardController extends Controller
                 $query->whereHas('activity', function ($query) {
                     $query->whereHas('agent', function ($query) {
 //                        $query->where('leader_id', \Auth::user()->model_id);
-                                        $query->where('unit_id', \Auth::user()->model->unit_id);
+                                        $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
                     });
                 });
@@ -207,12 +207,12 @@ class DashboardController extends Controller
         $positionBoosters = [];
         /** BOOSTERS */
         if ($filterAgent) {
-            $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent->position_id);
+            $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent?->position_id);
         }
 
         if (\Auth::user()->role->name == 'Manager') {
             $agent            = $this->agentService->getAgentById(\Auth::user()->model_id);
-            $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent->position_id);
+            $positionBoosters = $this->settingPositionProductService->getBoostersByPosition($agent?->position_id);
         }
 
         $boosters = $this->productService->getProduct()
@@ -299,17 +299,17 @@ class DashboardController extends Controller
         }
 
         if (\Auth::user()->role->name == 'Manager' || \Auth::user()->role->name == 'Pemimpin Cabang') {
-            $filterBranch = \Auth::user()->model->unit_id;
+            $filterBranch = \Auth::user()->employee()?->unit_id;
         }
 
         $agents = $this->agentService->getAgent(isSalesOnly: true)
             ->when(\Auth::user()->role->name == 'Manager', function ($query) {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             })
             ->when(\Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', \Auth::user()->model->unit_id);
+                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
             })
             ->when($filterSetting, function ($query, $filterSetting) {
                 $setting = $this->settingPositionProductService->getSettingPositionProductById($filterSetting);
@@ -370,7 +370,7 @@ class DashboardController extends Controller
 
         if ($filterAgent) {
             $agent               = $this->agentService->getAgentById($filterAgent);
-            $positionProducts    = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts    = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
             $targetAgentAccounts = $this->targetAgentService->getTargetAgents()
                 ->where('target_period_id', $filterYear)
                 ->when($filterAgent, function ($query, $filterAgent) {
@@ -405,7 +405,7 @@ class DashboardController extends Controller
 
         if (\Auth::user()->role->name == 'Manager') {
             $agent            = $this->agentService->getAgentById(\Auth::user()->model_id);
-            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
         }
 
         $products = $this->productService->getProduct()
@@ -550,7 +550,7 @@ class DashboardController extends Controller
                 ->where('type', 1)
                 ->sum('total');
 
-            $settingProduct = $this->settingPositionProductService->getSettingProductByPosition($agent->position_id);
+            $settingProduct = $this->settingPositionProductService->getSettingProductByPosition($agent?->position_id);
             if (empty($arrDataCategories[$settingProduct?->id]["target"])) {
                 $arrDataCategories[$settingProduct?->id]["target"] = 0;
             }

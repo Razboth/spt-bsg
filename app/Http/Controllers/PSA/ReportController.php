@@ -95,7 +95,7 @@ class ReportController extends Controller
             $filterSettingPosition = $request->get('combo_2') ?? array_key_first($settingPositions);
             $filterUnit = $request->get('combo_3');
             if (\Auth::user()->role->name == 'Pemimpin Cabang') {
-                $filterUnit = \Auth::user()->model->unit_id;
+                $filterUnit = \Auth::user()->employee()?->unit_id;
             }
             $settingPosition = $this->positionProductService->getSettingPositionProductById($filterSettingPosition)->positions;
             $query = $this->agentService->getAgent(isSalesOnly: true)
@@ -105,7 +105,7 @@ class ReportController extends Controller
             $role = \Auth::user()->role;
             if ($role->name == 'Manager') {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             } else {
                 $query->whereIn('position_id', explode(",", $settingPosition));
@@ -141,7 +141,7 @@ class ReportController extends Controller
         $settingPositionId = $request->get('combo_2');
         $unitId = $request->get('combo_3');
         if (\Auth::user()->role->name == 'Pemimpin Cabang') {
-            $unitId = \Auth::user()->model->unit_id;
+            $unitId = \Auth::user()->employee()?->unit_id;
         }
 
         if (\Auth::user()->role->name == 'Manager') {
@@ -226,7 +226,7 @@ class ReportController extends Controller
             $settingPosition = $this->positionProductService->getSettingPositionProductById($filterSettingPosition)->positions;
             $filterUnit = $request->get('combo_3');
             if (\Auth::user()->role->name == 'Pemimpin Cabang') {
-                $filterUnit = \Auth::user()->model->unit_id;
+                $filterUnit = \Auth::user()->employee()?->unit_id;
             }
             $query = $this->agentService->getAgent()
                 ->when($filterUnit, function ($query) use ($filterUnit) {
@@ -235,7 +235,7 @@ class ReportController extends Controller
             $role = \Auth::user()->role;
             if ($role->name == 'Manager') {
 //                $query->where('leader_id', \Auth::user()->model_id);
-                                $query->where('unit_id', \Auth::user()->model->unit_id);
+                                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
 
             } else {
                 $query->whereIn('position_id', explode(",", $settingPosition));
@@ -291,7 +291,7 @@ class ReportController extends Controller
                 $query->where('leader_id', \Auth::user()->model_id);
             })
             ->when(\Auth::user()->role->name == 'Pemimpin Cabang', function ($query) {
-                $query->where('unit_id', \Auth::user()->model->unit_id);
+                $query->where('unit_id', \Auth::user()->employee()?->unit_id);
             })
             ->get();
 

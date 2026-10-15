@@ -52,7 +52,7 @@ class SalesRatioController extends Controller
         if(Auth::user()->role->name != 'Manager' && Auth::user()->role->name != 'Sales') {
             $setting = $this->settingPositionProductService->getSettingPositionProductById($settingId);
         }else{
-            $position = Auth::user()->model->position_id;
+            $position = Auth::user()->employee()?->position_id;
             $setting = $this->settingPositionProductService->getSettingProductByPosition($position);
             $settingId = $setting->id;
         }
@@ -84,7 +84,7 @@ class SalesRatioController extends Controller
     {
         $agent = $this->agentService->getAgentById($agentId);
         $customer = $this->customerService->getCustomerById($customerId);
-        $productSettings = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+        $productSettings = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
         $products = $this->productService->getProduct()
             ->whereIn('id', $productSettings->toArray())
             ->pluck('name', 'id')

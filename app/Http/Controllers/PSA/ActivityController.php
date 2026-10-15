@@ -100,7 +100,7 @@ class ActivityController extends Controller
         $customers = $this->customerService->getCustomerForArray();
         if (\Auth::user()->role_id == 9) {
             $agent = \Auth::user()->model;
-            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+            $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
 
             $products = $this->productService->getProduct()
                 ->whereIn('id', $positionProducts)
@@ -118,7 +118,7 @@ class ActivityController extends Controller
         $agents = $this->agentService->getAgent()
             ->when(\Auth::user()->role->name == 'Manager', function (Builder $query) {
 //                $query->where('leader_id', \Auth::user()->model_id)->orWhere('id', \Auth::user()->model_id);
-                $query->where('unit_id', \Auth::user()->model_id)->orWhere('id', \Auth::user()->model->unit_id);
+                $query->where('unit_id', \Auth::user()->model_id)->orWhere('id', \Auth::user()->employee()?->unit_id);
             })
             ->pluck('name', 'id')
             ->toArray();
@@ -326,7 +326,7 @@ class ActivityController extends Controller
     public function products($id)
     {
         $agent = $this->agentService->getAgentById($id);
-        $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent->position_id);
+        $positionProducts = $this->settingPositionProductService->getProductsByPosition($agent?->position_id);
         return $this->productService->getProduct()
             ->whereIn('id', $positionProducts)
             ->where('type', 'p')

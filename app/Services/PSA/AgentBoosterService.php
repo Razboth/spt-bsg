@@ -46,11 +46,11 @@ class AgentBoosterService extends Controller
                 })
                 ->when(\Auth::user()->role->name == 'Pemimpin Cabang', function ($query){
                     $query->whereHas('agent', function ($query) {
-                        $query->where('unit_id', \Auth::user()->model->unit_id);
+                        $query->where('unit_id', \Auth::user()->employee()?->unit_id);
                     });
                 })
                 ->when(\Auth::user()->role->name == 'Sales', function ($query){
-                    $query->where('agent_id', \Auth::user()->model->id);
+                    $query->where('agent_id', \Auth::user()->employee()?->id);
                 });
             $filter = $request->get('search')['value'];
             $queryFilter = function ($query) use ($filter) {

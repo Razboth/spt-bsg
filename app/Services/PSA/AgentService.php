@@ -48,8 +48,12 @@ class AgentService extends Controller
         return $query;
     }
 
-    public function getAgentById(string $id): Agent
+    public function getAgentById(?string $id): ?Agent
     {
+        if (empty($id)) {
+            return null;
+        }
+
         return $this->agentRepository->getById($id);
     }
 

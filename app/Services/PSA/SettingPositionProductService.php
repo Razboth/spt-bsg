@@ -174,7 +174,7 @@ class SettingPositionProductService extends Controller
                 ->whereRaw("FIND_IN_SET(?, positions)", [$positionId])
                 ->where('type', 'b')
                 ->first();
-            $positionProducts = $positionProduct->details;
+            $positionProducts = $positionProduct?->details;
 
         return $positionProducts?->pluck('product_id');
     }
