@@ -2,7 +2,7 @@
 @section('content')
     <div class="card">
         <form method="POST" id="form-edit" action="{{ empty($template) ? route(Str::replace('/', '.', $menu_path) . '.store') :
-            route(Str::replace('/', '.', $menu_path) . '.update', $template->id) }}" enctype="multipart/form-data">
+            route(Str::replace('/', '.', $menu_path) . '.update', $template->id) }}">
             @csrf
             @if(!empty($template))
                 @method('PATCH')

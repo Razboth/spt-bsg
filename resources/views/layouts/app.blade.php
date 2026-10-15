@@ -136,7 +136,7 @@
 <!--begin::Global Javascript Bundle(mandatory for all pages)-->
 <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
 <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
-<script src="{{ asset('assets/js/general.js') }}"></script>
+<script src="{{ asset('assets/js/general.js') }}?v={{ filemtime(public_path('assets/js/general.js')) }}"></script>
 <!--end::Global Javascript Bundle-->
 <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
 <!--begin::DataTables global error handler-->

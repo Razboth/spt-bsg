@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <div class="card">
-        <form method="POST" id="form-edit" enctype="multipart/form-data">
+        <form method="POST" id="form-edit">
             @csrf
             @if(!empty($activity))
                 @method('PATCH')

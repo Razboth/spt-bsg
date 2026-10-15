@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <div class="card">
-        <form method="POST" id="form-edit" action="{{ route(Str::replace('/', '.', $menu_path) . '.update', [$agent->id, $customer->id, $date]) }}" enctype="multipart/form-data">
+        <form method="POST" id="form-edit" action="{{ route(Str::replace('/', '.', $menu_path) . '.update', [$agent->id, $customer->id, $date]) }}">
             @csrf
             @method('PATCH')
             <x-form.header title="Form Sales Ratio" />

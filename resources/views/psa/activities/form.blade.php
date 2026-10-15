@@ -3,7 +3,7 @@
     <div class="card">
         <form method="POST" id="form-edit"
               action="{{ empty($activity) ? route(Str::replace('/', '.', $menu_path) . '.store') : route(Str::replace('/', '.', $menu_path) . '.update', $activity->id) }}"
-              enctype="multipart/form-data">
+             >
             @csrf
             @if(!empty($activity))
                 @method('PATCH')
