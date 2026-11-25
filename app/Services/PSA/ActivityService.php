@@ -251,7 +251,9 @@ class ActivityService extends Controller
 
             return generateDatatable($query, $queryFilter, [
                 ['name' => 'check', 'type' => 'custom', 'isAdd' => true, 'value' => function ($row) {
-                    return empty($row->approved_status) || empty($row->approved_2_status) ? view('components.datatables.checkbox', [
+                    // Status bisa null atau 'p' (pending); checkbox tampil selama salah satu level belum disetujui ('t'),
+                    // sama dengan filter query di atas.
+                    return $row->approved_status !== 't' || $row->approved_2_status !== 't' ? view('components.datatables.checkbox', [
                         'id' => $row->id,
                     ]) : null;
 //                    return "-";

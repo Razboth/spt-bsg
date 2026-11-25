@@ -130,6 +130,11 @@
                     });
 
                     datatables.on('draw.dt', refreshFsLightbox);
+                    // Reset pilihan setiap kali tabel di-render ulang (paging, filter, reload)
+                    datatables.on('draw.dt', function () {
+                        $('#checkAll').prop('checked', false);
+                        $('.btnApprove').addClass('d-none');
+                    });
                 };
 
                 // Handle search with debounce
@@ -172,7 +177,8 @@
             $('#checkAll').on('click', function () {
                 $('.check-item').prop('checked', this.checked);
 
-                if (this.checked) {
+                // Tombol hanya muncul jika ada checkbox baris yang benar-benar tercentang
+                if ($('.check-item:checked').length > 0) {
                     $('.btnApprove').removeClass('d-none');
                 } else {
                     $('.btnApprove').addClass('d-none');
@@ -195,6 +201,15 @@
                 let ids = $('.check-item:checked').map(function () {
                     return this.value;
                 }).get().join(',');
+
+                if (!ids) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Pilih minimal satu data terlebih dahulu'
+                    });
+                    return;
+                }
 
                 // SweetAlert2 untuk konfirmasi sebelum mengirim AJAX
                 Swal.fire({

@@ -126,47 +126,35 @@ class ApprovalController extends Controller
 
     public function approveBatch(Request $request)
     {
-        $ids  = $request->ids;
-        $data = explode(',', $ids);
+        $ids  = array_values(array_filter(array_map('trim', explode(',', (string) $request->ids))));
+        $type = (int) ($request->get('type') ?? 1);
 
-        foreach ($data as $id) {
-            $activity = Activity::find($id);
-            if ($request->get('type') == 1) {
-                $activity->update([
-                    'approved_date'   => now(),
-                    'approved_by'     => \Auth::user()->id,
-                    'approved_status' => 't',
-                ]);
+        if (empty($ids)) {
+            return response()->json(['message' => 'Tidak ada data yang dipilih'], 422);
+        }
 
-                $details = $activity->details;
-                foreach ($details as $detail) {
-                    $detail->update([
-                        'approved_date'   => now(),
-                        'approved_by'     => \Auth::user()->id,
-                        'approved_status' => 't',
-                    ]);
-                }
+        $prefix = $type === 1 ? 'approved' : 'approved_2';
+        $values = [
+            "{$prefix}_date"   => now(),
+            "{$prefix}_by"     => \Auth::user()->id,
+            "{$prefix}_status" => 't',
+        ];
 
-                $this->checkTotalApproved($detail, 1);
-            } else {
-                $activity->update([
-                    'approved_2_date'   => now(),
-                    'approved_2_by'     => \Auth::user()->id,
-                    'approved_2_status' => 't',
-                ]);
+        $activities = Activity::with('details')->whereIn('id', $ids)->get();
 
-                $details = $activity->details;
-                foreach ($details as $detail) {
-                    $detail->update([
-                        'approved_2_date'   => now(),
-                        'approved_2_by'     => \Auth::user()->id,
-                        'approved_2_status' => 't',
-                    ]);
-                }
+        foreach ($activities as $activity) {
+            $activity->update($values);
 
-                $this->checkTotalApproved($detail, 2);
+            foreach ($activity->details as $detail) {
+                $detail->update($values);
+            }
+
+            if ($activity->details->isNotEmpty()) {
+                $this->checkTotalApproved($activity->details->last(), $type);
             }
         }
+
+        return response()->json(['message' => 'Data berhasil di-approve']);
     }
 
     public function updateDetailApprove(Request $request, ActivityDetail $detail)
